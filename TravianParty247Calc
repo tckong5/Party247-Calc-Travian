@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRAVIAN 派對排產計算器</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"SF Pro Icons"', '"Helvetica Neue"', 'Helvetica', 'Arial', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        /* iOS 系統原生極細滑桿樣式 - 完全相容白天與黑夜 */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        /* 軌道 Track */
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e3e3e9; /* 白天：蘋果標準淺灰軌道 */
+            border-radius: 2px;
+        }
+        .dark input[type=range]::-webkit-slider-runnable-track {
+            background: #3a3a3c; /* 夜晚：蘋果暗灰色軌道 */
+        }
+        /* 圓鈕 Thumb */
+        input[type=range]::-webkit-slider-thumb {
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1);
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: -8px; /* 居中調整: (4px - 20px)/2 */
+            transition: transform 0.1s ease;
+        }
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.1);
+        }
+
+        /* 數字防抖（等寬數字） */
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* 隱藏原生微調按鈕 */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-[#f2f2f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] min-h-screen transition-colors duration-300 font-sans antialiased flex flex-col items-center">
+
+    <!-- 頂部精簡導航欄 -->
+    <header class="w-full max-w-md border-b border-[#e5e5e7] dark:border-[#262629] bg-white/80 dark:bg-black/80 backdrop-blur-md transition-colors duration-300 shrink-0 sticky top-0 z-50">
+        <div class="px-6 h-12 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-5 h-5 rounded bg-gradient-to-tr from-green-500 to-yellow-400 flex items-center justify-center text-black shadow">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <span class="font-bold text-[11px] tracking-tight block text-[#86868b]">TRAVIAN UTILITY</span>
+                </div>
+            </div>
+            
+            <button id="themeToggle" class="p-1.5 rounded-full hover:bg-black/10 transition-colors focus:outline-none">
+                <!-- 太陽圖標 -->
+                <svg id="sunIcon" class="w-4 h-4 text-amber-400 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <!-- 月亮圖標 -->
+                <svg id="moonIcon" class="w-4 h-4 text-indigo-600 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主顯示區域：不分平台，一律限制為 max-w-md 垂直排列 -->
+    <main class="w-full max-w-md px-4 py-5 flex-1 flex flex-col space-y-4">
+        
+        <!-- 1 & 2 合併：城鎮廳與慶典設定 (Apple iOS Segmented Control 樣式) -->
+        <div class="bg-white dark:bg-[#1c1c1e] rounded-2xl p-4 shadow-sm border border-[#e5e5e7] dark:border-[#262629]/80 transition-all flex flex-col space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <span class="w-1.5 h-3 bg-blue-500 rounded-full"></span>
+                    <h2 class="text-xs font-bold text-[#86868b]">城鎮廳與慶典設定</h2>
+                </div>
+                <span class="text-xs font-bold text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-md tabular-nums">Lv. <span id="thLevelVal">10</span></span>
+            </div>
+            
+            <!-- 城鎮廳等級滑動條 -->
+            <div class="space-y-1">
+                <input type="range" id="thLevel" min="1" max="20" value="10" class="w-full">
+            </div>
+
+            <!-- iOS 原生 Segmented Control 切換艙樣式 (自適應雙色) -->
+            <div class="bg-[#eeeeef] dark:bg-[#2c2c2e] p-0.5 rounded-lg flex relative" id="segmentedControl">
+                <!-- 滑動背景 (白天純白，夜間暗灰) -->
+                <div id="segmentBg" class="absolute top-0.5 bottom-0.5 left-0.5 w-[calc(50%-2px)] bg-white dark:bg-[#636366] rounded-md transition-all duration-200 shadow"></div>
+                
+                <!-- 細P 按鈕 -->
+                <button onclick="setPartyType('small')" id="partySmall" class="relative z-10 w-1/2 py-1.5 text-center transition-all duration-200">
+                    <span class="text-xs font-semibold block text-[#1d1d1f] dark:text-white">小型慶典 (細P)</span>
+                    <span class="text-[9px] text-[#86868b] dark:text-[#aeaeb2] block mt-0.5">+500 CP</span>
+                </button>
+                <!-- 大P 按鈕 -->
+                <button onclick="setPartyType('large')" id="partyLarge" class="relative z-10 w-1/2 py-1.5 text-center transition-all duration-200">
+                    <!-- 鎖頭 🔒 -->
+                    <span id="lockIcon" class="hidden absolute top-1 right-2 text-neutral-400 dark:text-[#86868b]">
+                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+                            <rect x="5" y="11" width="14" height="10" rx="2" ry="2"></rect>
+                            <path d="M8 11V7a4 4 0 0 1 8 0v4"></path>
+                        </svg>
+                    </span>
+                    <span class="text-xs font-semibold block text-[#1d1d1f] dark:text-white">大型慶典 (大P)</span>
+                    <span class="text-[9px] text-[#86868b] dark:text-[#aeaeb2] block mt-0.5">+2160 CP</span>
+                </button>
+            </div>
+
+            <!-- 慶典時長資訊 -->
+            <div class="py-1.5 px-3 rounded-lg bg-[#eeeeef]/60 dark:bg-[#2c2c2e]/40 border border-[#e5e5e7] dark:border-[#262629] flex justify-between items-center text-xs tabular-nums">
+                <span class="text-[#86868b]">持續時間: <strong id="calcDuration" class="text-blue-500 dark:text-blue-400 font-bold ml-1">--</strong></span>
+                <span class="text-neutral-300 dark:text-[#3a3a3c]">|</span>
+                <span class="text-[#86868b]">總消耗: <strong id="calcCostShort" class="text-[#1d1d1f] dark:text-[#f5f5f7] font-bold ml-1">--</strong></span>
+            </div>
+        </div>
+
+        <!-- 3. 每小時淨產量 (iOS 帶 Slider 垂直直列) -->
+        <div class="bg-white dark:bg-[#1c1c1e] rounded-2xl p-4 shadow-sm border border-[#e5e5e7] dark:border-[#262629]/80 transition-all flex flex-col space-y-3">
+            <div class="flex items-center space-x-2 border-b border-neutral-100 dark:border-[#262629] pb-2">
+                <span class="w-1.5 h-3 bg-green-600 dark:bg-[#30d158] rounded-full"></span>
+                <h2 class="text-xs font-bold text-[#86868b]">每小時淨產量設定</h2>
+            </div>
+            
+            <div class="space-y-3">
+                <!-- 木材 (深綠/亮綠 #30d158) -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-semibold text-neutral-500 dark:text-[#aeaeb2] flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-600 dark:bg-[#30d158]"></span>🪵 木材 (Wood)
+                        </label>
+                        <div class="bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-2 py-0.5 flex items-center border border-[#e5e5e7] dark:border-[#3a3a3c] focus-within:border-blue-500 transition-colors">
+                            <input type="number" id="prodWood" value="3500" class="w-16 bg-transparent border-0 text-right text-xs font-bold focus:outline-none text-[#1d1d1f] dark:text-white tabular-nums">
+                            <span class="text-[9px] text-[#86868b] font-semibold ml-0.5">/h</span>
+                        </div>
+                    </div>
+                    <input type="range" id="sliderWood" min="0" max="20000" value="3500" class="w-full accent-green-600 dark:accent-[#30d158]">
+                </div>
+
+                <!-- 泥地 -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-semibold text-neutral-500 dark:text-[#aeaeb2] flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>🧱 泥地 (Clay)
+                        </label>
+                        <div class="bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-2 py-0.5 flex items-center border border-[#e5e5e7] dark:border-[#3a3a3c] focus-within:border-blue-500 transition-colors">
+                            <input type="number" id="prodClay" value="3500" class="w-16 bg-transparent border-0 text-right text-xs font-bold focus:outline-none text-[#1d1d1f] dark:text-white tabular-nums">
+                            <span class="text-[9px] text-[#86868b] font-semibold ml-0.5">/h</span>
+                        </div>
+                    </div>
+                    <input type="range" id="sliderClay" min="0" max="20000" value="3500" class="w-full accent-amber-600">
+                </div>
+
+                <!-- 鋼鐵 -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-semibold text-neutral-500 dark:text-[#aeaeb2] flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>⚔️ 鋼鐵 (Iron)
+                        </label>
+                        <div class="bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-2 py-0.5 flex items-center border border-[#e5e5e7] dark:border-[#3a3a3c] focus-within:border-blue-500 transition-colors">
+                            <input type="number" id="prodIron" value="3500" class="w-16 bg-transparent border-0 text-right text-xs font-bold focus:outline-none text-[#1d1d1f] dark:text-white tabular-nums">
+                            <span class="text-[9px] text-[#86868b] font-semibold ml-0.5">/h</span>
+                        </div>
+                    </div>
+                    <input type="range" id="sliderIron" min="0" max="20000" value="3500" class="w-full accent-slate-500">
+                </div>
+
+                <!-- 穀物 / 米 (深黃/亮金黃 #ffd60a) -->
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center">
+                        <label class="text-xs font-semibold text-neutral-500 dark:text-[#aeaeb2] flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-600 dark:bg-[#ffd60a]"></span>🌾 穀物 (Crop)
+                        </label>
+                        <div class="bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-2 py-0.5 flex items-center border border-[#e5e5e7] dark:border-[#3a3a3c] focus-within:border-blue-500 transition-colors">
+                            <input type="number" id="prodCrop" value="5500" class="w-16 bg-transparent border-0 text-right text-xs font-bold focus:outline-none text-[#1d1d1f] dark:text-white tabular-nums">
+                            <span class="text-[9px] text-[#86868b] font-semibold ml-0.5">/h</span>
+                        </div>
+                    </div>
+                    <input type="range" id="sliderCrop" min="0" max="20000" value="5500" class="w-full accent-yellow-600 dark:accent-[#ffd60a]">
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 定時外送發貨估算 (iOS 原生垂直直列) -->
+        <div class="bg-white dark:bg-[#1c1c1e] rounded-2xl p-4 shadow-sm border border-[#e5e5e7] dark:border-[#262629]/80 relative overflow-hidden flex flex-col space-y-4">
+            
+            <div class="flex items-center space-x-2 border-b border-neutral-100 dark:border-[#262629] pb-2">
+                <span class="w-1.5 h-3 bg-orange-500 rounded-full"></span>
+                <h2 class="text-xs font-bold text-[#86868b]">定時外送發貨估算</h2>
+            </div>
+
+            <!-- 外送頻率滑桿 (預設 1小時) -->
+            <div class="bg-[#eeeeef]/60 dark:bg-[#2c2c2e]/40 p-3 rounded-xl border border-[#e5e5e7] dark:border-[#262629] space-y-1.5">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-[#86868b] font-semibold">外送間隔：</span>
+                    <span class="font-extrabold text-orange-500 text-xs tabular-nums"><span id="batchIntervalVal">1</span> 小時送一次</span>
+                </div>
+                <input type="range" id="batchInterval" min="1" max="24" value="1" class="w-full accent-orange-500">
+            </div>
+
+            <!-- 垂直列表：批次應運發貨量 -->
+            <div class="space-y-2 tabular-nums">
+                <!-- 木材 -->
+                <div class="p-3 rounded-xl bg-[#eeeeef]/40 dark:bg-[#2c2c2e]/30 border border-[#e5e5e7]/60 dark:border-[#262629]/60 flex justify-between items-center">
+                    <span class="text-xs font-semibold text-[#86868b] flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-600 dark:bg-[#30d158]"></span>木材應運
+                    </span>
+                    <span class="text-base font-extrabold text-green-700 dark:text-[#30d158] text-right" id="batchWood">0</span>
+                </div>
+
+                <!-- 泥地 -->
+                <div class="p-3 rounded-xl bg-[#eeeeef]/40 dark:bg-[#2c2c2e]/30 border border-[#e5e5e7]/60 dark:border-[#262629]/60 flex justify-between items-center">
+                    <span class="text-xs font-semibold text-[#86868b] flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>泥地應運
+                    </span>
+                    <span class="text-base font-extrabold text-amber-600 dark:text-amber-500 text-right" id="batchClay">0</span>
+                </div>
+
+                <!-- 鋼鐵 -->
+                <div class="p-3 rounded-xl bg-[#eeeeef]/40 dark:bg-[#2c2c2e]/30 border border-[#e5e5e7]/60 dark:border-[#262629]/60 flex justify-between items-center">
+                    <span class="text-xs font-semibold text-[#86868b] flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>鋼鐵應運
+                    </span>
+                    <span class="text-base font-extrabold text-slate-500 dark:text-slate-400 text-right" id="batchIron">0</span>
+                </div>
+
+                <!-- 穀物 -->
+                <div class="p-3 rounded-xl bg-[#eeeeef]/40 dark:bg-[#2c2c2e]/30 border border-[#e5e5e7]/60 dark:border-[#262629]/60 flex justify-between items-center">
+                    <span class="text-xs font-semibold text-[#86868b] flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-600 dark:bg-[#ffd60a]"></span>穀物應運
+                    </span>
+                    <span class="text-base font-extrabold text-yellow-600 dark:text-[#ffd60a] text-right" id="batchCrop">0</span>
+                </div>
+            </div>
+
+            <!-- 赤字警告 -->
+            <div id="warningBox" class="hidden bg-rose-50 dark:bg-rose-950/20 text-rose-600 dark:text-[#ff453a] text-[10px] p-2.5 rounded-xl border border-rose-200 dark:border-rose-900/30">
+                <div class="flex items-start space-x-1.5">
+                    <svg class="w-3.5 h-3.5 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                    <div>
+                        <span class="font-bold">產能不足警告：</span>
+                        <span id="warningMsg" class="leading-normal"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- 精巧版尾 -->
+    <footer class="w-full max-w-md text-center text-[9px] text-[#86868b] py-4 shrink-0">
+        <p>Travian 慶典連續排產助手 · Apple Style iOS 17 Compliant</p>
+    </footer>
+
+    <!-- 計算核心邏輯 JS -->
+    <script>
+        // 慶典時間庫
+        const partyBaseSeconds = {
+            1: [86400, null],
+            2: [83290, null],
+            3: [80291, null],
+            4: [77401, null],
+            5: [74614, null],
+            6: [71928, null],
+            7: [69339, null],
+            8: [66843, null],
+            9: [64436, null],
+            10: [62117, 155291],
+            11: [59880, 149701],
+            12: [57725, 144312],
+            13: [55647, 139116],
+            14: [53643, 134108],
+            15: [51712, 129280],
+            16: [49850, 124626],
+            17: [48056, 120140],
+            18: [46326, 115815],
+            19: [44658, 111645],
+            20: [43050, 107626]
+        };
+
+        const partyCosts = {
+            small: { wood: 6400, clay: 6650, iron: 5940, crop: 1340 },
+            large: { wood: 29700, clay: 33250, iron: 32000, crop: 6700 }
+        };
+
+        let currentThLevel = 10;
+        let selectedPartyType = 'large'; // 'small' | 'large'
+
+        // DOM 元素
+        const thLevelInput = document.getElementById('thLevel');
+        const thLevelVal = document.getElementById('thLevelVal');
+        const partySmallBtn = document.getElementById('partySmall');
+        const partyLargeBtn = document.getElementById('partyLarge');
+        const segmentBg = document.getElementById('segmentBg');
+        const lockIcon = document.getElementById('lockIcon');
+        const calcDurationEl = document.getElementById('calcDuration');
+        const calcCostShortEl = document.getElementById('calcCostShort');
+        const batchIntervalInput = document.getElementById('batchInterval');
+        const batchIntervalVal = document.getElementById('batchIntervalVal');
+
+        // 產能與 Slider 對應
+        const prods = {
+            wood: { input: document.getElementById('prodWood'), slider: document.getElementById('sliderWood') },
+            clay: { input: document.getElementById('prodClay'), slider: document.getElementById('sliderClay') },
+            iron: { input: document.getElementById('prodIron'), slider: document.getElementById('sliderIron') },
+            crop: { input: document.getElementById('prodCrop'), slider: document.getElementById('sliderCrop') }
+        };
+
+        // 綁定同步聯動
+        Object.keys(prods).forEach(key => {
+            const item = prods[key];
+            
+            item.input.addEventListener('input', () => {
+                let val = parseFloat(item.input.value) || 0;
+                if (val > 20000) val = 20000;
+                item.slider.value = val;
+                calculate();
+            });
+
+            item.slider.addEventListener('input', () => {
+                item.input.value = item.slider.value;
+                calculate();
+            });
+        });
+
+        // 格式化時間 HMS
+        function formatSecondsToHMS(totalSeconds) {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = Math.round(totalSeconds % 60);
+            return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        // 切換慶典類型 (當點大P時，若小於10級，會自動強切Lv.10)
+        function setPartyType(type) {
+            if (type === 'large') {
+                if (currentThLevel < 10) {
+                    currentThLevel = 10;
+                    thLevelInput.value = 10;
+                    thLevelVal.innerText = 10;
+                }
+            }
+            selectedPartyType = type;
+            updatePartyTypeUI();
+            calculate();
+        }
+
+        // 更新滑動選擇艙（Segmented Control）的樣式與動畫
+        function updatePartyTypeUI() {
+            if (currentThLevel < 10) {
+                lockIcon.classList.remove('hidden');
+                selectedPartyType = 'small';
+            } else {
+                lockIcon.classList.add('hidden');
+            }
+
+            if (selectedPartyType === 'small') {
+                segmentBg.style.left = '2px';
+                segmentBg.style.width = 'calc(50% - 2px)';
+            } else {
+                segmentBg.style.left = 'calc(50% + 2px)';
+                segmentBg.style.width = 'calc(50% - 4px)';
+            }
+        }
+
+        // 運算主模組
+        function calculate() {
+            currentThLevel = parseInt(thLevelInput.value);
+            thLevelVal.innerText = currentThLevel;
+
+            // 拖動到10級以下強制變細P
+            if (currentThLevel < 10 && selectedPartyType === 'large') {
+                selectedPartyType = 'small';
+            }
+
+            updatePartyTypeUI();
+
+            const finalSeconds = partyBaseSeconds[currentThLevel][selectedPartyType === 'small' ? 0 : 1];
+            const finalHours = finalSeconds / 3600;
+
+            calcDurationEl.innerText = formatSecondsToHMS(finalSeconds);
+
+            const cost = partyCosts[selectedPartyType];
+            const costK = (val) => (val / 1000).toFixed(1) + 'k';
+            calcCostShortEl.innerText = `${costK(cost.wood)} | ${costK(cost.clay)} | ${costK(cost.iron)} | ${costK(cost.crop)}`;
+
+            const data = {
+                wood: { prod: parseFloat(prods.wood.input.value) || 0, cost: cost.wood },
+                clay: { prod: parseFloat(prods.clay.input.value) || 0, cost: cost.clay },
+                iron: { prod: parseFloat(prods.iron.input.value) || 0, cost: cost.iron },
+                crop: { prod: parseFloat(prods.crop.input.value) || 0, cost: cost.crop }
+            };
+
+            const interval = parseFloat(batchIntervalInput.value) || 1;
+            batchIntervalVal.innerText = interval;
+            
+            let errors = [];
+
+            for (let key in data) {
+                const item = data[key];
+                const partyHourlyRate = item.cost / finalHours;
+                const sendHourly = item.prod - partyHourlyRate;
+                const batchSend = Math.max(0, sendHourly) * interval;
+
+                const batchEl = document.getElementById('batch' + key.charAt(0).toUpperCase() + key.slice(1));
+
+                if (sendHourly < 0) {
+                    batchEl.innerText = '赤字: -' + Math.abs(Math.round(sendHourly)).toLocaleString() + '/h';
+                    batchEl.className = 'text-xs font-bold text-rose-500 text-right leading-none';
+                    errors.push(translateKey(key));
+                } else {
+                    batchEl.innerText = Math.round(batchSend).toLocaleString();
+                    batchEl.className = 'text-base font-extrabold ' + getResourceTextClass(key) + ' text-right leading-none';
+                }
+            }
+
+            // 提示赤字警告
+            const warningBox = document.getElementById('warningBox');
+            const warningMsg = document.getElementById('warningMsg');
+            if (errors.length > 0) {
+                warningMsg.innerText = '目前的【' + errors.join('、') + '】產量不足以支持此時長不間斷慶典！';
+                warningBox.classList.remove('hidden');
+            } else {
+                warningBox.classList.add('hidden');
+            }
+        }
+
+        function translateKey(key) {
+            const m = { wood: '木材', clay: '泥地', iron: '鋼鐵', crop: '穀物' };
+            return m[key];
+        }
+
+        function getResourceTextClass(key) {
+            const m = {
+                wood: 'text-green-700 dark:text-[#30d158]',
+                clay: 'text-amber-600 dark:text-amber-500',
+                iron: 'text-slate-500 dark:text-slate-400',
+                crop: 'text-yellow-600 dark:text-[#ffd60a]'
+            };
+            return m[key];
+        }
+
+        // 監聽
+        thLevelInput.addEventListener('input', calculate);
+        batchIntervalInput.addEventListener('input', calculate);
+
+        // 簡單切換主題 (在 HTML 追加 light 類別)
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+        });
+
+        // 啟動首頁計算
+        calculate();
+    </script>
+</body>
+</html>
