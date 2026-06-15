@@ -79,14 +79,14 @@
             <div class="flex items-center space-x-2">
                 <!-- 全新融合 OFP (OnlyFxxx + Patxxxx) 高質感 Logo -->
                 <div class="flex items-center space-x-3">
-                    <svg class="w-8 h-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg class="w-8 h-8 drop-shadow-[0_2px_4px_rgba(0,0,0,0.15)] dark:drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <defs>
-                            <!-- OnlyFans 的經典天空藍漸層 -->
+                            <!-- OnlyFxxx 的經典天空藍漸層 -->
                             <linearGradient id="ofBlue" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#00aff0" />
                                 <stop offset="100%" stop-color="#008ec2" />
                             </linearGradient>
-                            <!-- Patreon 的經典活力橙漸層 -->
+                            <!-- Paxxxx 的經典活力橙漸層 -->
                             <linearGradient id="patreonOrange" x1="0%" y1="100%" x2="100%" y2="0%">
                                 <stop offset="0%" stop-color="#ff424d" />
                                 <stop offset="100%" stop-color="#f96854" />
@@ -98,14 +98,15 @@
                         
                         <!-- O 字的圓環主體 (OnlyFans 元素) 剛好與 P 的上半部融合 -->
                         <circle cx="52" cy="43" r="18" stroke="url(#ofBlue)" stroke-width="13" fill="none" />
-                        <circle cx="52" cy="43" r="4" fill="white" />
+                        <circle cx="52" cy="43" r="4" class="fill-white dark:fill-black" />
                         
                         <!-- OnlyFans 標誌性的右側小翅膀 -->
                         <path d="M68 35C74 33 82 25 85 28C88 31 82 40 78 44C84 44 88 48 85 52C82 56 72 51 66 48" fill="url(#ofBlue)" stroke="url(#ofBlue)" stroke-width="1.5" stroke-linejoin="round" />
                     </svg>
                     <div>
-                        <span class="font-black text-sm tracking-tight block text-white">Only for Party</span>
-                        <span class="text-[9px] font-bold tracking-widest block text-purple-400 -mt-0.5">OFP EDITION</span>
+                        <!-- 修正這裡：使用 text-[#1d1d1f] dark:text-white 確保兩邊都看得清 -->
+                        <span class="font-black text-sm tracking-tight block text-[#1d1d1f] dark:text-white">Only for Party</span>
+                        <span class="text-[9px] font-bold tracking-widest block text-purple-600 dark:text-purple-400 -mt-0.5">OFP EDITION</span>
                     </div>
                 </div>
                 <div>
