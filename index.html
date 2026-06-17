@@ -69,6 +69,171 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+
+        .oasis-toggle {
+            width: 30px;
+            height: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .oasis-icon {
+            width: 16px;
+            height: 16px;
+            display: block;
+            background-color: currentColor;
+            -webkit-mask: url('assets/oasis-arrow.png') center / contain no-repeat;
+            mask: url('assets/oasis-arrow.png') center / contain no-repeat;
+        }
+        .step-btn {
+            font-weight: 800;
+            transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+        }
+        .step-btn:active {
+            transform: scale(0.96);
+        }
+        .step-btn-ios {
+            border: 1px solid rgba(174, 174, 178, 0.26);
+            background: rgba(99, 99, 102, 0.56);
+            color: #f5f5f7;
+        }
+        .step-btn-ios:active {
+            background: rgba(118, 118, 128, 0.68);
+            border-color: rgba(174, 174, 178, 0.42);
+        }
+        .dark .step-btn-ios {
+            border-color: rgba(174, 174, 178, 0.28);
+            background: rgba(99, 99, 102, 0.52);
+            color: #f5f5f7;
+        }
+        .step-btn-count {
+            width: 28px;
+            height: 28px;
+        }
+        .step-btn-bonus {
+            width: 24px;
+            height: 28px;
+        }
+        .crop-preset-group {
+            display: inline-flex;
+            align-items: center;
+            overflow: hidden;
+            border: 1px solid #e5e5e7;
+            border-radius: 6px;
+        }
+        .dark .crop-preset-group {
+            border-color: #3a3a3c;
+        }
+        .crop-preset-btn {
+            width: 28px;
+            height: 20px;
+            color: #86868b;
+            font-weight: 700;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+        .crop-preset-btn + .crop-preset-btn {
+            border-left: 1px solid #e5e5e7;
+        }
+        .dark .crop-preset-btn + .crop-preset-btn {
+            border-left-color: #3a3a3c;
+        }
+        .consumption-step-group {
+            width: 156px;
+        }
+        .consumption-step-bg {
+            position: absolute;
+            top: 2px;
+            bottom: 2px;
+            left: 2px;
+            width: calc((100% - 4px) / 3);
+            border-radius: 5px;
+            background: #ffffff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+            transition: left 0.22s ease, width 0.22s ease;
+        }
+        .dark .consumption-step-bg {
+            background: #636366;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+        }
+        .consumption-step-btn {
+            width: 48px;
+            height: 24px;
+            padding: 0 8px;
+            color: #86868b;
+            font-size: 12px;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+            transition: color 0.18s ease, transform 0.12s ease;
+        }
+        .consumption-step-btn:active {
+            transform: scale(0.96);
+        }
+        .route-interval-btn {
+            flex: 1 1 0;
+            height: 26px;
+            padding: 0 4px;
+            border-radius: 6px;
+            color: #86868b;
+            font-size: 12px;
+            font-weight: 800;
+            transition: background-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+        }
+        .route-interval-btn:active {
+            transform: scale(0.96);
+        }
+        .route-interval-group {
+            display: flex;
+            gap: 2px;
+            padding: 2px;
+            border-radius: 9px;
+            background: #d9d9dc;
+        }
+        .dark .route-interval-group {
+            background: #1c1c1e;
+        }
+        .route-usage-bar {
+            position: relative;
+            height: 24px;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .route-usage-bar-wood {
+            background: rgba(52, 199, 89, 0.42);
+        }
+        .route-usage-bar-clay {
+            background: rgba(245, 158, 11, 0.42);
+        }
+        .route-usage-bar-iron {
+            background: rgba(100, 116, 139, 0.42);
+        }
+        .route-usage-bar-crop {
+            background: rgba(255, 214, 10, 0.42);
+        }
+        .route-usage-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 0%;
+            border-radius: inherit;
+            transition: width 0.22s ease;
+        }
+        .route-usage-text {
+            position: relative;
+            z-index: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 8px;
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 800;
+            line-height: 1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="bg-[#f2f2f7] dark:bg-[#000000] text-[#1d1d1f] dark:text-[#f5f5f7] min-h-screen transition-colors duration-300 font-sans antialiased flex flex-col items-center">
@@ -185,14 +350,145 @@
             </div>
         </div>
 
-        <!-- 3. 每小時淨產量 (iOS 帶 Slider 垂直直列) -->
+        <!-- 3. 村莊時產 -->
         <div class="bg-white dark:bg-[#1c1c1e] rounded-2xl p-4 shadow-sm border border-[#e5e5e7] dark:border-[#262629]/80 transition-all flex flex-col space-y-3">
             <div class="flex items-center space-x-2 border-b border-neutral-100 dark:border-[#262629] pb-2">
                 <span class="w-1.5 h-3 bg-green-600 dark:bg-[#30d158] rounded-full"></span>
-                <h2 class="text-xs font-bold text-[#86868b]">每小時淨產量設定</h2>
+                <h2 class="text-xs font-bold text-[#86868b]">村莊時產</h2>
+            </div>
+
+            <div class="bg-[#eeeeef] dark:bg-[#2c2c2e] p-0.5 rounded-lg flex relative" id="productionTabs">
+                <div id="productionTabBg" class="absolute top-0.5 bottom-0.5 left-0.5 w-[calc(50%-2px)] bg-white dark:bg-[#636366] rounded-md transition-all duration-200 shadow"></div>
+                <button type="button" onclick="setProductionTab('fields')" id="productionFieldsTab" class="relative z-10 w-1/2 py-1.5 text-center text-xs font-semibold text-[#1d1d1f] dark:text-white transition-colors">資源田分佈</button>
+                <button type="button" onclick="setProductionTab('custom')" id="productionCustomTab" class="relative z-10 w-1/2 py-1.5 text-center text-xs font-semibold text-[#86868b] dark:text-[#aeaeb2] transition-colors">Customize</button>
             </div>
             
-            <div class="space-y-3">
+            <div id="fieldProductionPanel" class="space-y-3">
+                <div class="space-y-2 tabular-nums">
+                    <div class="grid grid-cols-[112px_1fr] gap-2 items-center text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-green-600 dark:bg-[#30d158] shrink-0"></span>
+                            <div>
+                                <span class="font-semibold text-neutral-500 dark:text-[#aeaeb2] block">伐木場</span>
+                                <span id="fieldWoodResult" class="block mt-0.5 font-extrabold text-green-700 dark:text-[#30d158] leading-none">0</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-1.5">
+                        <div class="w-[92px] flex items-center justify-between bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-1 py-1 border border-[#e5e5e7] dark:border-[#3a3a3c]">
+                            <button type="button" onclick="adjustField('wood', -1)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">-</button>
+                            <span id="fieldWoodCount" class="font-extrabold text-[#1d1d1f] dark:text-white">4</span>
+                            <button type="button" onclick="adjustField('wood', 1)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">+</button>
+                        </div>
+                        <div class="w-[102px] flex items-center justify-between bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-1 py-1 border border-[#e5e5e7] dark:border-[#3a3a3c]">
+                            <button type="button" onclick="adjustFieldBonus('wood', -25)" class="step-btn step-btn-ios step-btn-bonus rounded-md text-sm">-</button>
+                            <span id="fieldWoodBonus" class="px-1.5 font-extrabold text-[#1d1d1f] dark:text-white">25%</span>
+                            <button type="button" onclick="adjustFieldBonus('wood', 25)" class="step-btn step-btn-ios step-btn-bonus rounded-md text-sm">+</button>
+                        </div>
+                        <button type="button" onclick="toggleOasis('wood')" id="fieldWoodOasis" class="oasis-toggle rounded-lg border border-amber-300 bg-transparent transition-colors"><span class="oasis-icon" aria-hidden="true"></span></button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-[112px_1fr] gap-2 items-center text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0"></span>
+                            <div>
+                                <span class="font-semibold text-neutral-500 dark:text-[#aeaeb2] block">泥坑</span>
+                                <span id="fieldClayResult" class="block mt-0.5 font-extrabold text-amber-600 dark:text-amber-500 leading-none">0</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-1.5">
+                        <div class="w-[92px] flex items-center justify-between bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-1 py-1 border border-[#e5e5e7] dark:border-[#3a3a3c]">
+                            <button type="button" onclick="adjustField('clay', -1)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">-</button>
+                            <span id="fieldClayCount" class="font-extrabold text-[#1d1d1f] dark:text-white">4</span>
+                            <button type="button" onclick="adjustField('clay', 1)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">+</button>
+                        </div>
+                        <div class="w-[102px] flex items-center justify-between bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-1 py-1 border border-[#e5e5e7] dark:border-[#3a3a3c]">
+                            <button type="button" onclick="adjustFieldBonus('clay', -25)" class="step-btn step-btn-ios step-btn-bonus rounded-md text-sm">-</button>
+                            <span id="fieldClayBonus" class="px-1.5 font-extrabold text-[#1d1d1f] dark:text-white">25%</span>
+                            <button type="button" onclick="adjustFieldBonus('clay', 25)" class="step-btn step-btn-ios step-btn-bonus rounded-md text-sm">+</button>
+                        </div>
+                        <button type="button" onclick="toggleOasis('clay')" id="fieldClayOasis" class="oasis-toggle rounded-lg border border-amber-300 bg-transparent transition-colors"><span class="oasis-icon" aria-hidden="true"></span></button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-[112px_1fr] gap-2 items-center text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span>
+                            <div>
+                                <span class="font-semibold text-neutral-500 dark:text-[#aeaeb2] block">鐵礦場</span>
+                                <span id="fieldIronResult" class="block mt-0.5 font-extrabold text-slate-500 dark:text-slate-400 leading-none">0</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-1.5">
+                        <div class="w-[92px] flex items-center justify-between bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-1 py-1 border border-[#e5e5e7] dark:border-[#3a3a3c]">
+                            <button type="button" onclick="adjustField('iron', -1)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">-</button>
+                            <span id="fieldIronCount" class="font-extrabold text-[#1d1d1f] dark:text-white">4</span>
+                            <button type="button" onclick="adjustField('iron', 1)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">+</button>
+                        </div>
+                        <div class="w-[102px] flex items-center justify-between bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-1 py-1 border border-[#e5e5e7] dark:border-[#3a3a3c]">
+                            <button type="button" onclick="adjustFieldBonus('iron', -25)" class="step-btn step-btn-ios step-btn-bonus rounded-md text-sm">-</button>
+                            <span id="fieldIronBonus" class="px-1.5 font-extrabold text-[#1d1d1f] dark:text-white">25%</span>
+                            <button type="button" onclick="adjustFieldBonus('iron', 25)" class="step-btn step-btn-ios step-btn-bonus rounded-md text-sm">+</button>
+                        </div>
+                        <button type="button" onclick="toggleOasis('iron')" id="fieldIronOasis" class="oasis-toggle rounded-lg border border-amber-300 bg-transparent transition-colors"><span class="oasis-icon" aria-hidden="true"></span></button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-[112px_1fr] gap-2 items-center text-xs">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-yellow-600 dark:bg-[#ffd60a] shrink-0"></span>
+                            <div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-semibold text-neutral-500 dark:text-[#aeaeb2] block">農場</span>
+                                    <div class="crop-preset-group">
+                                        <button type="button" onclick="toggleFieldPreset(9)" id="fieldPreset9" class="crop-preset-btn">9</button>
+                                        <button type="button" onclick="toggleFieldPreset(15)" id="fieldPreset15" class="crop-preset-btn">15</button>
+                                    </div>
+                                </div>
+                                <span id="fieldCropResult" class="block mt-0.5 font-extrabold text-yellow-600 dark:text-[#ffd60a] leading-none">0</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end gap-1.5">
+                        <div class="w-[92px] flex items-center justify-between bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-1 py-1 border border-[#e5e5e7] dark:border-[#3a3a3c]">
+                            <button type="button" onclick="adjustField('crop', -1)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">-</button>
+                            <span id="fieldCropCount" class="font-extrabold text-[#1d1d1f] dark:text-white">6</span>
+                            <button type="button" onclick="adjustField('crop', 1)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">+</button>
+                        </div>
+                        <div class="w-[102px] flex items-center justify-between bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-1 py-1 border border-[#e5e5e7] dark:border-[#3a3a3c]">
+                            <button type="button" onclick="adjustFieldBonus('crop', -25)" class="step-btn step-btn-ios step-btn-bonus rounded-md text-sm">-</button>
+                            <span id="fieldCropBonus" class="px-1.5 font-extrabold text-[#1d1d1f] dark:text-white">50%</span>
+                            <button type="button" onclick="adjustFieldBonus('crop', 25)" class="step-btn step-btn-ios step-btn-bonus rounded-md text-sm">+</button>
+                        </div>
+                        <button type="button" onclick="toggleOasis('crop')" id="fieldCropOasis" class="oasis-toggle rounded-lg border border-amber-300 bg-transparent transition-colors"><span class="oasis-icon" aria-hidden="true"></span></button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" onclick="resetFieldProduction()" class="w-full py-2 text-xs font-bold text-[#86868b] bg-[#eeeeef]/60 dark:bg-[#2c2c2e]/40 rounded-xl border border-[#e5e5e7] dark:border-[#262629]">Reset</button>
+                <div class="border-t border-[#e5e5e7] dark:border-[#262629] pt-3 space-y-2">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-neutral-300 dark:bg-[#aeaeb2]"></span>
+                            <span class="text-xs font-semibold text-neutral-500 dark:text-[#aeaeb2]">糧食消耗/駐防 <span class="text-[10px] text-[#86868b]">(預設建築消耗為-800)</span></span>
+                        </div>
+                        <span class="text-xs font-extrabold text-yellow-600 dark:text-[#ffd60a] tabular-nums">-<span id="cropConsumptionVal">0</span>/h</span>
+                    </div>
+                    <div class="flex items-center justify-center gap-2">
+                        <div class="bg-[#eeeeef] dark:bg-[#2c2c2e] rounded-lg px-1 py-1 border border-[#e5e5e7] dark:border-[#3a3a3c] flex items-center gap-1">
+                            <button type="button" onclick="adjustCropConsumption(-cropConsumptionStep)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">-</button>
+                            <div class="consumption-step-group relative bg-[#d9d9dc] dark:bg-[#1c1c1e] p-0.5 rounded-md flex justify-between overflow-hidden">
+                                <div id="cropStepBg" class="consumption-step-bg"></div>
+                                <button type="button" onclick="setCropConsumptionStep(100)" id="cropStep100" class="consumption-step-btn">100</button>
+                                <button type="button" onclick="setCropConsumptionStep(500)" id="cropStep500" class="consumption-step-btn">500</button>
+                                <button type="button" onclick="setCropConsumptionStep(1000)" id="cropStep1000" class="consumption-step-btn">1000</button>
+                            </div>
+                            <button type="button" onclick="adjustCropConsumption(cropConsumptionStep)" class="step-btn step-btn-ios step-btn-count rounded-md text-sm">+</button>
+                        </div>
+                    </div>
+                    <button type="button" onclick="resetCropConsumption()" class="w-full py-2 text-xs font-bold text-[#86868b] bg-[#eeeeef]/60 dark:bg-[#2c2c2e]/40 rounded-xl border border-[#e5e5e7] dark:border-[#262629]">Reset</button>
+                </div>
+            </div>
+
+            <div id="customProductionPanel" class="space-y-3 hidden">
                 <!-- 木材 (深綠/亮綠 #30d158) -->
                 <div class="space-y-1">
                     <div class="flex justify-between items-center">
@@ -251,55 +547,107 @@
             </div>
         </div>
 
-        <!-- 4. 定時外送發貨估算 (iOS 原生垂直直列) -->
+        <!-- 4. 交易路線師 -->
         <div class="bg-white dark:bg-[#1c1c1e] rounded-2xl p-4 shadow-sm border border-[#e5e5e7] dark:border-[#262629]/80 relative overflow-hidden flex flex-col space-y-4">
             
             <div class="flex items-center space-x-2 border-b border-neutral-100 dark:border-[#262629] pb-2">
                 <span class="w-1.5 h-3 bg-orange-500 rounded-full"></span>
-                <h2 class="text-xs font-bold text-[#86868b]">定時外送發貨估算</h2>
+                <h2 class="text-xs font-bold text-[#86868b]">交易路線師</h2>
             </div>
 
-            <!-- 外送頻率滑桿 (預設 1小時) -->
-            <div class="bg-[#eeeeef]/60 dark:bg-[#2c2c2e]/40 p-3 rounded-xl border border-[#e5e5e7] dark:border-[#262629] space-y-1.5">
+            <div class="bg-[#eeeeef]/60 dark:bg-[#2c2c2e]/40 p-3 rounded-xl border border-[#e5e5e7] dark:border-[#262629] space-y-2">
                 <div class="flex justify-between items-center text-xs">
-                    <span class="text-[#86868b] font-semibold">外送間隔：</span>
+                    <span class="text-[#86868b] font-semibold">運送間隔：</span>
                     <span class="font-extrabold text-orange-500 text-xs tabular-nums"><span id="batchIntervalVal">1</span> 小時送一次</span>
                 </div>
-                <input type="range" id="batchInterval" min="1" max="24" value="1" class="w-full accent-orange-500">
+                <input type="hidden" id="batchInterval" value="1">
+                <div class="route-interval-group">
+                    <button type="button" id="batchInterval1" onclick="setBatchInterval(1)" class="route-interval-btn">1</button>
+                    <button type="button" id="batchInterval2" onclick="setBatchInterval(2)" class="route-interval-btn">2</button>
+                    <button type="button" id="batchInterval3" onclick="setBatchInterval(3)" class="route-interval-btn">3</button>
+                    <button type="button" id="batchInterval4" onclick="setBatchInterval(4)" class="route-interval-btn">4</button>
+                    <button type="button" id="batchInterval6" onclick="setBatchInterval(6)" class="route-interval-btn">6</button>
+                    <button type="button" id="batchInterval8" onclick="setBatchInterval(8)" class="route-interval-btn">8</button>
+                    <button type="button" id="batchInterval12" onclick="setBatchInterval(12)" class="route-interval-btn">12</button>
+                    <button type="button" id="batchInterval24" onclick="setBatchInterval(24)" class="route-interval-btn">24</button>
+                </div>
             </div>
 
-            <!-- 垂直列表：批次應運發貨量 -->
-            <div class="space-y-2 tabular-nums">
-                <!-- 木材 -->
-                <div class="p-3 rounded-xl bg-[#eeeeef]/40 dark:bg-[#2c2c2e]/30 border border-[#e5e5e7]/60 dark:border-[#262629]/60 flex justify-between items-center">
-                    <span class="text-xs font-semibold text-[#86868b] flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-green-600 dark:bg-[#30d158]"></span>木材應運
-                    </span>
-                    <span class="text-base font-extrabold text-green-700 dark:text-[#30d158] text-right" id="batchWood">0</span>
+            <div class="space-y-3 tabular-nums">
+                <div class="grid grid-cols-[98px_minmax(0,1fr)] gap-2 items-center">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-600 dark:bg-[#30d158] shrink-0"></span>
+                        <div class="min-w-0">
+                            <div class="text-xs font-semibold text-[#86868b] leading-tight">每次木材運送量</div>
+                            <div class="text-base font-extrabold text-green-700 dark:text-[#30d158] leading-tight" id="batchWood">0</div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="route-usage-bar route-usage-bar-wood">
+                            <div id="batchWoodUsageBar" class="route-usage-fill bg-blue-500"></div>
+                            <div class="route-usage-text">
+                                <span id="batchWoodPartyText">Party 0/h</span>
+                                <span id="batchWoodRemainText">餘 0/h</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 泥地 -->
-                <div class="p-3 rounded-xl bg-[#eeeeef]/40 dark:bg-[#2c2c2e]/30 border border-[#e5e5e7]/60 dark:border-[#262629]/60 flex justify-between items-center">
-                    <span class="text-xs font-semibold text-[#86868b] flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>泥地應運
-                    </span>
-                    <span class="text-base font-extrabold text-amber-600 dark:text-amber-500 text-right" id="batchClay">0</span>
+                <div class="grid grid-cols-[98px_minmax(0,1fr)] gap-2 items-center">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0"></span>
+                        <div class="min-w-0">
+                            <div class="text-xs font-semibold text-[#86868b] leading-tight">每次泥地運送量</div>
+                            <div class="text-base font-extrabold text-amber-600 dark:text-amber-500 leading-tight" id="batchClay">0</div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="route-usage-bar route-usage-bar-clay">
+                            <div id="batchClayUsageBar" class="route-usage-fill bg-blue-500"></div>
+                            <div class="route-usage-text">
+                                <span id="batchClayPartyText">Party 0/h</span>
+                                <span id="batchClayRemainText">餘 0/h</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 鋼鐵 -->
-                <div class="p-3 rounded-xl bg-[#eeeeef]/40 dark:bg-[#2c2c2e]/30 border border-[#e5e5e7]/60 dark:border-[#262629]/60 flex justify-between items-center">
-                    <span class="text-xs font-semibold text-[#86868b] flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span>鋼鐵應運
-                    </span>
-                    <span class="text-base font-extrabold text-slate-500 dark:text-slate-400 text-right" id="batchIron">0</span>
+                <div class="grid grid-cols-[98px_minmax(0,1fr)] gap-2 items-center">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-500 shrink-0"></span>
+                        <div class="min-w-0">
+                            <div class="text-xs font-semibold text-[#86868b] leading-tight">每次鋼鐵運送量</div>
+                            <div class="text-base font-extrabold text-slate-500 dark:text-slate-400 leading-tight" id="batchIron">0</div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="route-usage-bar route-usage-bar-iron">
+                            <div id="batchIronUsageBar" class="route-usage-fill bg-blue-500"></div>
+                            <div class="route-usage-text">
+                                <span id="batchIronPartyText">Party 0/h</span>
+                                <span id="batchIronRemainText">餘 0/h</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- 穀物 -->
-                <div class="p-3 rounded-xl bg-[#eeeeef]/40 dark:bg-[#2c2c2e]/30 border border-[#e5e5e7]/60 dark:border-[#262629]/60 flex justify-between items-center">
-                    <span class="text-xs font-semibold text-[#86868b] flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-600 dark:bg-[#ffd60a]"></span>穀物應運
-                    </span>
-                    <span class="text-base font-extrabold text-yellow-600 dark:text-[#ffd60a] text-right" id="batchCrop">0</span>
+                <div class="grid grid-cols-[98px_minmax(0,1fr)] gap-2 items-center">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-1.5 h-1.5 rounded-full bg-yellow-600 dark:bg-[#ffd60a] shrink-0"></span>
+                        <div class="min-w-0">
+                            <div class="text-xs font-semibold text-[#86868b] leading-tight">每次穀物運送量</div>
+                            <div class="text-base font-extrabold text-yellow-600 dark:text-[#ffd60a] leading-tight" id="batchCrop">0</div>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <div class="route-usage-bar route-usage-bar-crop">
+                            <div id="batchCropUsageBar" class="route-usage-fill bg-blue-500"></div>
+                            <div class="route-usage-text">
+                                <span id="batchCropPartyText">Party 0/h</span>
+                                <span id="batchCropRemainText">餘 0/h</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -370,6 +718,29 @@
         const calcCostShortEl = document.getElementById('calcCostShort');
         const batchIntervalInput = document.getElementById('batchInterval');
         const batchIntervalVal = document.getElementById('batchIntervalVal');
+        const routeIntervalOptions = [1, 2, 3, 4, 6, 8, 12, 24];
+        const productionTabBg = document.getElementById('productionTabBg');
+        const productionFieldsTab = document.getElementById('productionFieldsTab');
+        const productionCustomTab = document.getElementById('productionCustomTab');
+        const fieldProductionPanel = document.getElementById('fieldProductionPanel');
+        const customProductionPanel = document.getElementById('customProductionPanel');
+        const cropConsumptionVal = document.getElementById('cropConsumptionVal');
+        const cropStep100Btn = document.getElementById('cropStep100');
+        const cropStep500Btn = document.getElementById('cropStep500');
+        const cropStep1000Btn = document.getElementById('cropStep1000');
+        const cropStepBg = document.getElementById('cropStepBg');
+
+        let activeProductionTab = 'fields';
+        let activeFieldPreset = null;
+        let cropConsumption = 800;
+        let cropConsumptionStep = 500;
+        const fieldBaseHourly = 560;
+        const fieldProduction = {
+            wood: { count: 4, bonus: 25, oasis: true },
+            clay: { count: 4, bonus: 25, oasis: true },
+            iron: { count: 4, bonus: 25, oasis: true },
+            crop: { count: 6, bonus: 50, oasis: true }
+        };
 
         // 產能與 Slider 對應
         const prods = {
@@ -395,6 +766,221 @@
                 calculate();
             });
         });
+
+        function clamp(value, min, max) {
+            return Math.min(max, Math.max(min, value));
+        }
+
+        function getFieldLimits(key) {
+            if (activeFieldPreset === 9 || activeFieldPreset === 15) {
+                return { min: fieldProduction[key].count, max: fieldProduction[key].count };
+            }
+
+            return key === 'crop' ? { min: 6, max: 7 } : { min: 3, max: 5 };
+        }
+
+        function getFieldProductionValue(key) {
+            const item = fieldProduction[key];
+            return fieldBaseHourly * item.count * (1 + item.bonus / 100) * (item.oasis ? 1.25 : 1);
+        }
+
+        function updateFieldProductionUI() {
+            Object.keys(fieldProduction).forEach(key => {
+                const titleKey = key.charAt(0).toUpperCase() + key.slice(1);
+                const displayProduction = key === 'crop'
+                    ? Math.max(0, getFieldProductionValue(key) - cropConsumption)
+                    : getFieldProductionValue(key);
+                document.getElementById('field' + titleKey + 'Count').innerText = fieldProduction[key].count;
+                document.getElementById('field' + titleKey + 'Bonus').innerText = fieldProduction[key].bonus + '%';
+                document.getElementById('field' + titleKey + 'Result').innerText = Math.round(displayProduction).toLocaleString() + '/h';
+
+                const oasisBtn = document.getElementById('field' + titleKey + 'Oasis');
+                oasisBtn.className = getOasisButtonClass(fieldProduction[key].oasis);
+            });
+
+            document.getElementById('fieldPreset9').className = getPresetClass(activeFieldPreset === 9);
+            document.getElementById('fieldPreset15').className = getPresetClass(activeFieldPreset === 15);
+        }
+
+        function getOasisButtonClass(isActive) {
+            return isActive
+                ? 'oasis-toggle rounded-lg border border-amber-400 text-amber-400 bg-amber-100 dark:bg-amber-500/20 shadow-[0_0_0_1px_rgba(251,191,36,0.35)] transition-colors'
+                : 'oasis-toggle rounded-lg border border-[#d1d1d6] dark:border-[#3a3a3c] text-[#8e8e93] bg-transparent transition-colors';
+        }
+
+        function getPresetClass(isActive) {
+            return isActive
+                ? 'crop-preset-btn bg-green-500 text-white'
+                : 'crop-preset-btn';
+        }
+
+        function setProductionTab(tab) {
+            activeProductionTab = tab;
+            if (tab === 'fields') {
+                productionTabBg.style.left = '2px';
+                productionTabBg.style.width = 'calc(50% - 2px)';
+                productionFieldsTab.className = 'relative z-10 w-1/2 py-1.5 text-center text-xs font-semibold text-[#1d1d1f] dark:text-white transition-colors';
+                productionCustomTab.className = 'relative z-10 w-1/2 py-1.5 text-center text-xs font-semibold text-[#86868b] dark:text-[#aeaeb2] transition-colors';
+                fieldProductionPanel.classList.remove('hidden');
+                customProductionPanel.classList.add('hidden');
+            } else {
+                productionTabBg.style.left = 'calc(50% + 2px)';
+                productionTabBg.style.width = 'calc(50% - 4px)';
+                productionFieldsTab.className = 'relative z-10 w-1/2 py-1.5 text-center text-xs font-semibold text-[#86868b] dark:text-[#aeaeb2] transition-colors';
+                productionCustomTab.className = 'relative z-10 w-1/2 py-1.5 text-center text-xs font-semibold text-[#1d1d1f] dark:text-white transition-colors';
+                fieldProductionPanel.classList.add('hidden');
+                customProductionPanel.classList.remove('hidden');
+            }
+            calculate();
+        }
+
+        function applyFieldPreset(preset) {
+            activeFieldPreset = preset;
+            if (preset === 9) {
+                fieldProduction.wood.count = 3;
+                fieldProduction.clay.count = 3;
+                fieldProduction.iron.count = 3;
+                fieldProduction.crop.count = 9;
+            } else if (preset === 15) {
+                fieldProduction.wood.count = 1;
+                fieldProduction.clay.count = 1;
+                fieldProduction.iron.count = 1;
+                fieldProduction.crop.count = 15;
+            }
+        }
+
+        function toggleFieldPreset(preset) {
+            if (activeFieldPreset === preset) {
+                resetFieldCounts();
+            } else {
+                applyFieldPreset(preset);
+            }
+            updateFieldProductionUI();
+            calculate();
+        }
+
+        function resetFieldCounts() {
+            activeFieldPreset = null;
+            fieldProduction.wood.count = 4;
+            fieldProduction.clay.count = 4;
+            fieldProduction.iron.count = 4;
+            fieldProduction.crop.count = 6;
+        }
+
+        function adjustField(key, delta) {
+            if (activeFieldPreset === 9 || activeFieldPreset === 15) return;
+            const limits = getFieldLimits(key);
+            fieldProduction[key].count = clamp(fieldProduction[key].count + delta, limits.min, limits.max);
+            updateFieldProductionUI();
+            calculate();
+        }
+
+        function adjustFieldBonus(key, delta) {
+            fieldProduction[key].bonus = clamp(fieldProduction[key].bonus + delta, 0, 200);
+            updateFieldProductionUI();
+            calculate();
+        }
+
+        function toggleOasis(key) {
+            fieldProduction[key].oasis = !fieldProduction[key].oasis;
+            updateFieldProductionUI();
+            calculate();
+        }
+
+        function updateCropConsumptionUI() {
+            cropConsumptionVal.innerText = cropConsumption.toLocaleString();
+            cropStep100Btn.className = getCropConsumptionStepClass(cropConsumptionStep === 100);
+            cropStep500Btn.className = getCropConsumptionStepClass(cropConsumptionStep === 500);
+            cropStep1000Btn.className = getCropConsumptionStepClass(cropConsumptionStep === 1000);
+            updateCropStepBg();
+        }
+
+        function getCropConsumptionStepClass(isActive) {
+            return isActive
+                ? 'consumption-step-btn text-[#1d1d1f] dark:text-white'
+                : 'consumption-step-btn';
+        }
+
+        function updateCropStepBg() {
+            const positions = {
+                100: '2px',
+                500: 'calc(2px + ((100% - 4px) / 3))',
+                1000: 'calc(100% - 2px - ((100% - 4px) / 3))'
+            };
+            cropStepBg.style.left = positions[cropConsumptionStep];
+            cropStepBg.style.width = 'calc((100% - 4px) / 3)';
+        }
+
+        function setCropConsumptionStep(step) {
+            cropConsumptionStep = step;
+            updateCropConsumptionUI();
+        }
+
+        function setCropConsumption(value) {
+            cropConsumption = Math.max(0, Math.round(value || 0));
+            updateCropConsumptionUI();
+            updateFieldProductionUI();
+            calculate();
+        }
+
+        function adjustCropConsumption(delta) {
+            setCropConsumption(cropConsumption + delta);
+        }
+
+        function resetCropConsumption() {
+            setCropConsumption(800);
+        }
+
+        function resetFieldProduction() {
+            resetFieldCounts();
+            fieldProduction.wood.bonus = 25;
+            fieldProduction.clay.bonus = 25;
+            fieldProduction.iron.bonus = 25;
+            fieldProduction.crop.bonus = 50;
+            fieldProduction.wood.oasis = true;
+            fieldProduction.clay.oasis = true;
+            fieldProduction.iron.oasis = true;
+            fieldProduction.crop.oasis = true;
+            updateFieldProductionUI();
+            calculate();
+        }
+
+        function getActiveProduction(key) {
+            const consumption = key === 'crop' ? cropConsumption : 0;
+            if (activeProductionTab === 'fields') {
+                return Math.max(0, getFieldProductionValue(key) - consumption);
+            }
+
+            return Math.max(0, (parseFloat(prods[key].input.value) || 0) - consumption);
+        }
+
+        function setBatchInterval(interval) {
+            batchIntervalInput.value = interval;
+            calculate();
+        }
+
+        function updateBatchIntervalUI(interval) {
+            batchIntervalVal.innerText = interval;
+            routeIntervalOptions.forEach(option => {
+                const btn = document.getElementById('batchInterval' + option);
+                if (!btn) return;
+                btn.className = option === interval
+                    ? 'route-interval-btn bg-white dark:bg-[#636366] text-[#1d1d1f] dark:text-white shadow-sm'
+                    : 'route-interval-btn bg-transparent';
+            });
+        }
+
+        function updateRouteUsage(key, partyHourlyRate, remainHourly) {
+            const titleKey = key.charAt(0).toUpperCase() + key.slice(1);
+            const usageBar = document.getElementById('batch' + titleKey + 'UsageBar');
+            const partyText = document.getElementById('batch' + titleKey + 'PartyText');
+            const remainText = document.getElementById('batch' + titleKey + 'RemainText');
+            const totalHourly = partyHourlyRate + Math.max(0, remainHourly);
+            const usagePercent = totalHourly > 0 ? (partyHourlyRate / totalHourly) * 100 : 0;
+            usageBar.style.width = Math.min(100, Math.max(0, usagePercent)) + '%';
+            partyText.innerText = 'Party ' + Math.round(partyHourlyRate).toLocaleString() + '/h';
+            remainText.innerText = '餘 ' + Math.max(0, Math.round(remainHourly)).toLocaleString() + '/h';
+        }
 
         // 格式化時間 HMS
         function formatSecondsToHMS(totalSeconds) {
@@ -458,14 +1044,14 @@
             calcCostShortEl.innerText = `${costK(cost.wood)} | ${costK(cost.clay)} | ${costK(cost.iron)} | ${costK(cost.crop)}`;
 
             const data = {
-                wood: { prod: parseFloat(prods.wood.input.value) || 0, cost: cost.wood },
-                clay: { prod: parseFloat(prods.clay.input.value) || 0, cost: cost.clay },
-                iron: { prod: parseFloat(prods.iron.input.value) || 0, cost: cost.iron },
-                crop: { prod: parseFloat(prods.crop.input.value) || 0, cost: cost.crop }
+                wood: { prod: getActiveProduction('wood'), cost: cost.wood },
+                clay: { prod: getActiveProduction('clay'), cost: cost.clay },
+                iron: { prod: getActiveProduction('iron'), cost: cost.iron },
+                crop: { prod: getActiveProduction('crop'), cost: cost.crop }
             };
 
-            const interval = parseFloat(batchIntervalInput.value) || 1;
-            batchIntervalVal.innerText = interval;
+            const interval = parseInt(batchIntervalInput.value) || 1;
+            updateBatchIntervalUI(interval);
             
             let errors = [];
 
@@ -476,14 +1062,15 @@
                 const batchSend = Math.max(0, sendHourly) * interval;
 
                 const batchEl = document.getElementById('batch' + key.charAt(0).toUpperCase() + key.slice(1));
+                updateRouteUsage(key, partyHourlyRate, sendHourly);
 
                 if (sendHourly < 0) {
                     batchEl.innerText = '赤字: -' + Math.abs(Math.round(sendHourly)).toLocaleString() + '/h';
-                    batchEl.className = 'text-xs font-bold text-rose-500 text-right leading-none';
+                    batchEl.className = 'text-xs font-bold text-rose-500 leading-tight';
                     errors.push(translateKey(key));
                 } else {
                     batchEl.innerText = Math.round(batchSend).toLocaleString();
-                    batchEl.className = 'text-base font-extrabold ' + getResourceTextClass(key) + ' text-right leading-none';
+                    batchEl.className = 'text-base font-extrabold ' + getResourceTextClass(key) + ' leading-tight';
                 }
             }
 
@@ -515,8 +1102,6 @@
 
         // 監聽
         thLevelInput.addEventListener('input', calculate);
-        batchIntervalInput.addEventListener('input', calculate);
-
         // 簡單切換主題 (在 HTML 追加 light 類別)
         const themeToggle = document.getElementById('themeToggle');
         themeToggle.addEventListener('click', () => {
@@ -524,6 +1109,8 @@
         });
 
         // 啟動首頁計算
+        updateCropConsumptionUI();
+        updateFieldProductionUI();
         calculate();
     </script>
 </body>
